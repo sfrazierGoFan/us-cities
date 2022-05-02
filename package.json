@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "build": "npm install; tsc",
-    "start": "nodemon dist/server.js"
+    "start": "nodemon dist/server.js",
+    "production": "node dist/server.js"
   },
   "author": "Ponder",
   "license": "ISC",
