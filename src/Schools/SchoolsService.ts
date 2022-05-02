@@ -3,6 +3,9 @@ import { schools } from '../data';
 import { City, Geo } from '../Cities';
 import { CitiesController } from '../Cities/CitiesController';
 import haversine from 'haversine';
+import * as workerpool from 'workerpool';
+
+const pool = workerpool.pool();
 
 type SchoolLookup = { [huddleId: string]: School };
 type SchoolsByKeyword = { [keyword: string]: School[] };
@@ -24,14 +27,10 @@ let schoolMap: SchoolLookup = {};
 let schoolsByKeyword: SchoolsByKeyword = {};
 let keywordStatus: KeywordStatus = 'not ready';
 let allKeywordSet = new Set<string>();
-//let count = 0;
 
-export function GenerateKeywords() {
-console.info(`Generating keywords...`);
+function GenerateKeywords() {
+  console.info(`Generating keywords...`);
   schoolList.forEach( (school: School) => {
-    //console.log(`processing school ${school.huddleId}   ${count++}`);
-    //const percent = Number((count++ / schoolList.length * 100).toFixed(2));
-    //if (percent === Math.floor(percent)) console.log(`${percent}`);
     schoolMap[school.huddleId] = school;
     GetKeywords(school)
       .then(keywords => {
@@ -43,6 +42,8 @@ console.info(`Generating keywords...`);
       });
   });
 }
+
+pool.exec(GenerateKeywords, null);
 
 function NormalizeSplitFilter(s: string): string[] {
   //console.debug(`NormalizeSplitFilter(s: ${typeof s} = "${s}")`);

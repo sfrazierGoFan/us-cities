@@ -1,6 +1,5 @@
 import { SchoolsController } from "./SchoolsController";
 import express from "express";
-import { read } from "fs";
 
 const controller = new SchoolsController();
 const SchoolsRouter = express.Router();
