@@ -7,7 +7,7 @@ export class SchoolsController {
     return new SchoolsService().get(huddleId);
   }
 
-  public async searchSchools(terms: string[], geo: Geo | null): Promise<School[]> {
+  public async searchSchools(terms: string[], geo: Geo | null): Promise<School[] | string> {
     console.log(`terms: ${terms}`);
     return new SchoolsService().search(terms, geo);
   }

@@ -18,27 +18,31 @@ const schoolList: School[] = (() => {
 })();
 
 const citiesController = new CitiesController();
+type KeywordStatus = 'not ready' | 'generating' | 'ready';
 
 let schoolMap: SchoolLookup = {};
 let schoolsByKeyword: SchoolsByKeyword = {};
+let keywordStatus: KeywordStatus = 'not ready';
 let allKeywordSet = new Set<string>();
 //let count = 0;
 
+export function GenerateKeywords() {
 console.info(`Generating keywords...`);
-schoolList.forEach( (school: School) => {
-  //console.log(`processing school ${school.huddleId}   ${count++}`);
-  //const percent = Number((count++ / schoolList.length * 100).toFixed(2));
-  //if (percent === Math.floor(percent)) console.log(`${percent}`);
-  schoolMap[school.huddleId] = school;
-  GetKeywords(school)
-    .then(keywords => {
-      keywords.forEach(kw => {
-        let schools: School[] = schoolsByKeyword[kw] || [];
-        schools.push(school);
-        schoolsByKeyword[kw] = schools;
+  schoolList.forEach( (school: School) => {
+    //console.log(`processing school ${school.huddleId}   ${count++}`);
+    //const percent = Number((count++ / schoolList.length * 100).toFixed(2));
+    //if (percent === Math.floor(percent)) console.log(`${percent}`);
+    schoolMap[school.huddleId] = school;
+    GetKeywords(school)
+      .then(keywords => {
+        keywords.forEach(kw => {
+          let schools: School[] = schoolsByKeyword[kw] || [];
+          schools.push(school);
+          schoolsByKeyword[kw] = schools;
+        });
       });
-    });
-});
+  });
+}
 
 function NormalizeSplitFilter(s: string): string[] {
   //console.debug(`NormalizeSplitFilter(s: ${typeof s} = "${s}")`);
@@ -103,7 +107,11 @@ export class SchoolsService {
     return school ? school : null;
   }
 
-  public search(terms: string[], geo: Geo | null): School[] {
+  public search(terms: string[], geo: Geo | null): School[] | KeywordStatus {
+    if (keywordStatus !== 'ready') {
+      return keywordStatus;
+    }
+
     let schoolsSet = new Set<School>();
 
     allKeywordSet.forEach(kw => {

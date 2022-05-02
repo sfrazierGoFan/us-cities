@@ -1,5 +1,6 @@
 import { SchoolsController } from "./SchoolsController";
 import express from "express";
+import { read } from "fs";
 
 const controller = new SchoolsController();
 const SchoolsRouter = express.Router();
@@ -32,6 +33,9 @@ SchoolsRouter.get("/search", async (req, res, _next) => {
   console.log(`query: "${query}"`);
 
   const schools = await controller.searchSchools(query.split(' ').filter(s=>s!==''), geo);
+  if (typeof schools === 'string') {
+    res.status(500);
+  }
   res.json(schools);
 });
 
