@@ -10,11 +10,14 @@ const pool = workerpool.pool();
 type SchoolLookup = { [huddleId: string]: School };
 type SchoolsByKeyword = { [keyword: string]: School[] };
 
+let schoolMap: SchoolLookup = {};
+
 console.info(`Converting list...`);
 const schoolList: School[] = (() => {
   const jSchools = JSON.parse(JSON.stringify(schools));
   const result: School[] = [];
   for (let school of jSchools) {
+    schoolMap[school.huddleId] = school;
       result.push(school);
   }
   return result;
@@ -23,15 +26,14 @@ const schoolList: School[] = (() => {
 const citiesController = new CitiesController();
 type KeywordStatus = 'not ready' | 'generating' | 'ready';
 
-let schoolMap: SchoolLookup = {};
 let schoolsByKeyword: SchoolsByKeyword = {};
 let keywordStatus: KeywordStatus = 'not ready';
 let allKeywordSet = new Set<string>();
 
 function GenerateKeywords() {
+  keywordStatus = 'generating';
   console.info(`Generating keywords...`);
   schoolList.forEach( (school: School) => {
-    schoolMap[school.huddleId] = school;
     GetKeywords(school)
       .then(keywords => {
         keywords.forEach(kw => {
@@ -41,6 +43,8 @@ function GenerateKeywords() {
         });
       });
   });
+  console.info(`Generating keywords complete!`);
+  keywordStatus = 'ready';
 }
 
 pool.exec(GenerateKeywords, null);

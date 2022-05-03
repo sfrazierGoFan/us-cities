@@ -7,7 +7,9 @@ const SchoolsRouter = express.Router();
 SchoolsRouter.get("/schools/:huddleId", async (req, res, _next) => {
   const huddleId = req.params.huddleId;
   const school = await controller.getSchool(huddleId);
-  res.json(school);
+  if (!school) res.status(404);
+  else res.json(school);
+  res.end();
 });
 
 SchoolsRouter.get("/search", async (req, res, _next) => {
@@ -28,8 +30,6 @@ SchoolsRouter.get("/search", async (req, res, _next) => {
       longitude: parseFloat(`${lng}`)
     };
   }
-
-  console.log(`query: "${query}"`);
 
   const schools = await controller.searchSchools(query.split(' ').filter(s=>s!==''), geo);
   if (typeof schools === 'string') {

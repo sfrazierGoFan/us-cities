@@ -8,7 +8,6 @@ export class SchoolsController {
   }
 
   public async searchSchools(terms: string[], geo: Geo | null): Promise<School[] | string> {
-    console.log(`terms: ${terms}`);
     return new SchoolsService().search(terms, geo);
   }
 }
